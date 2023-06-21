@@ -1,25 +1,96 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#c8e6c9"
+    tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/instructions_textview"
-        android:layout_width="352dp"
+        android:id="@+id/altitude_label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="64dp"
-        android:text="Hold your device flat and steady to measure altitude"
-        android:textSize="24sp" />
+        android:text="Altitude"
+        android:textSize="24sp"
+        android:textColor="#303030"
+        android:layout_marginTop="32dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/altitude_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"
+        android:text="0.0"
         android:textSize="48sp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:fontFamily="sans-serif-medium" />
+        android:textColor="#303030"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/altitude_label"
+        android:layout_centerHorizontal="true"/>
+
+    <TextView
+        android:id="@+id/latitude_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Latitude"
+        android:textSize="24sp"
+        android:textColor="#303030"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/altitude_textview"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/latitude_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textSize="36sp"
+        android:textColor="#303030"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_toEndOf="@+id/latitude_label"
+        android:layout_alignBaseline="@+id/latitude_label"/>
+
+    <TextView
+        android:id="@+id/longitude_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Longitude"
+        android:textSize="24sp"
+        android:textColor="#303030"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/latitude_label"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/longitude_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textSize="36sp"
+        android:textColor="#303030"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_toEndOf="@+id/longitude_label"
+        android:layout_alignBaseline="@+id/longitude_label"/>
+
+    <Button
+        android:id="@+id/refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:id="@+id/map_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Map"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/longitude_textview"
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>
