@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
 <!-- Add your map view here -->
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -15,23 +16,14 @@ android:layout_height="match_parent">
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#c8e6c9"
-        android:titleTextColor="@android:color/white"
-
-        />
-<!-- Add a button to return to the previous screen -->
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/map_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="7dp"
-        android:background="#32a852"
+        android:background="#005703"
+        android:subtitleTextColor="#FFFFFF"
         android:textColor="#FFFFFF"
-        android:text="Back"
-        />
+        android:titleTextColor="#FFFFFF"
+        app:theme="@style/ToolBarStyle"
+        app:navigationIcon="@drawable/frame"
+        app:title="Map" />
+<!-- Add a button to return to the previous screen -->
 
 
 </RelativeLayout>
