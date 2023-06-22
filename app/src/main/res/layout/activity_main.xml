@@ -74,6 +74,52 @@
         android:layout_toEndOf="@+id/longitude_label"
         android:layout_alignBaseline="@+id/longitude_label"/>
 
+    <TextView
+        android:id="@+id/temperature_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temperature"
+        android:textSize="24sp"
+        android:textColor="#303030"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/longitude_label"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/temperature_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textSize="36sp"
+        android:textColor="#303030"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_toEndOf="@+id/temperature_label"
+        android:layout_alignBaseline="@+id/temperature_label"/>
+
+    <TextView
+        android:id="@+id/humidity_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Humidity"
+        android:textSize="24sp"
+        android:textColor="#303030"
+        android:layout_marginTop="32dp"
+        android:layout_below="@+id/temperature_label"
+        android:layout_alignParentStart="true"/>
+
+    <TextView
+        android:id="@+id/humidity_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0.0"
+        android:textSize="36sp"
+        android:textColor="#303030"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_toEndOf="@+id/humidity_label"
+        android:layout_alignBaseline="@+id/humidity_label"/>
+
     <Button
         android:id="@+id/refresh_button"
         android:layout_width="wrap_content"
@@ -90,7 +136,17 @@
         android:layout_height="wrap_content"
         android:text="Show Map"
         android:layout_marginTop="16dp"
-        android:layout_below="@+id/longitude_textview"
+        android:layout_below="@+id/humidity_label"
         android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/compass_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Compass"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/map_button"
+        android:layout_centerHorizontal="true"
+       />
 
 </RelativeLayout>
