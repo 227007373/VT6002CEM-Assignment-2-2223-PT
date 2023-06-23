@@ -16,13 +16,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
-
+    private lateinit var editText: EditText
+    private lateinit var submitButton: Button
     private lateinit var sensorManager: SensorManager
     private lateinit var altitudeSensor: Sensor
     private lateinit var temperatureSensor: Sensor
@@ -148,6 +150,8 @@ class MainActivity : AppCompatActivity() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         latitudeTextView = findViewById(R.id.latitude_textview)
         longitudeTextView = findViewById(R.id.longitude_textview)
+        editText = findViewById(R.id.editText)
+        submitButton = findViewById(R.id.submitButton)
 
         // Check if the user has granted permission to access fine location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -162,7 +166,16 @@ class MainActivity : AppCompatActivity() {
         sensorManager.registerListener(sensorListener, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL)
         sensorManager.registerListener(sensorListener, humiditySensor, SensorManager.SENSOR_DELAY_NORMAL)
 
-
+        submitButton.setOnClickListener {
+            val name = editText.text.toString()
+            val latitude = 0.0 // TODO: Get the device's current latitude
+            val longitude = 0.0 // TODO: Get the device's current longitude
+            val altitude = 0.0 // TODO: Get the device's current altitude
+            val temperature = 0.0 // TODO: Get the device's current temperature
+            val humidity = 0.0 // TODO: Get the device's current humidity
+            Log.d("DATA", latitudeTextView.text.toString()+", "+longitudeTextView.text.toString()+", "+altitudeTextView.text.toString()+", "+temperatureTextView.text.toString()+", "+humidityTextView.text.toString())
+            // TODO: Store the data to the device using a database or a file
+        }
         val mapButton: Button = findViewById(R.id.map_button)
         val compassButton: Button = findViewById(R.id.compass_button)
         mapButton.setOnClickListener {
