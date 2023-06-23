@@ -11,11 +11,13 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -31,36 +33,89 @@ class MainActivity : AppCompatActivity() {
     private lateinit var altitudeTextView: TextView
     private lateinit var temperatureTextView: TextView
     private lateinit var humidityTextView: TextView
+    private lateinit var warningTextView: TextView
     private val sensorListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
             // Not used
         }
-
+        private var lastAltitude: Float? = null
+        private var lastAltitudeTime: Long = 0
+        private var temperature:Float = 0.0F
+        private  var humidity:Float = 0.0F
         override fun onSensorChanged(event: SensorEvent) {
-            val sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-            val sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL)
-            for (sensor in sensorList) {
-                if (sensor.type == Sensor.TYPE_AMBIENT_TEMPERATURE) {
-//                    Log.d("TEST",sensor.toString())
+            if (event?.sensor?.type == Sensor.TYPE_PRESSURE) {
+                val altitude = event.values[0]
+                altitudeTextView.text = altitude.toString() + " (hPa)"
+
+                val currentTime = System.currentTimeMillis()
+                if (lastAltitude != null && currentTime - lastAltitudeTime < 1000) {
+                    val altitudeDiff = altitude - lastAltitude!!
+                    val timeDiff = (currentTime - lastAltitudeTime) / 1000f
+                    val altitudeRate = altitudeDiff / timeDiff
+                    if (altitudeRate > 10) {
+                        makeEmergencyCall("12345678")
+                        // Altitude is increasing too fast
+                        // Do something here, such as triggering an alarm or notifying the user
+                    }
                 }
+
+                lastAltitude = altitude
+                lastAltitudeTime = currentTime
             }
+
             when (event.sensor.type) {
                 SENSOR_TYPE_ALTITUDE -> {
                     val altitude = event.values[0]
                     altitudeTextView.text = altitude.toString() + " (hPa)"
                 }
                 SENSOR_TYPE_TEMPERATURE -> {
-                    val temperature = event.values[0]
+                    temperature = event.values[0]
                     temperatureTextView.text = temperature.toString() + " ℃"
+                    checkTemperature(temperature,humidity)
                 }
                 SENSOR_TYPE_HUMIDITY -> {
-                    val humidity = event.values[0]
+                    humidity = event.values[0]
                     humidityTextView.text = humidity.toString() + " %"
+                    checkTemperature(temperature,humidity)
                 }
             }
         }
-    }
 
+    }
+    private fun checkTemperature(temperature: Float, humidity: Float) {
+        if (temperature > 30) {
+            // Temperature is too high, show a warning message
+            if(humidity > 70){
+                warningTextView.text = "Staying hydrated!🥵 and be ware the wet gouund"
+            }else{
+            warningTextView.text = "Staying hydrated!🥵"
+            }
+        } else if (temperature < 10) {
+            // Temperature is too low, show a warning message
+            if(humidity > 70){
+                warningTextView.text = "It is too cold!🥶 and be ware the wet gouund"
+            }else {
+                warningTextView.text = "It is too cold!🥶"
+            }
+        }else{
+            if(humidity > 70){
+                warningTextView.text = "Be ware the wet gouund"
+            }else {
+                warningTextView.text = "Be Safe👀"
+            }
+        }
+    }
+    private val REQUEST_CODE_CALL_PHONE_PERMISSION = 123
+    private fun makeEmergencyCall(phoneNumber: String) {
+        val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$phoneNumber"))
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // Request permission to make a phone call
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CALL_PHONE), REQUEST_CODE_CALL_PHONE_PERMISSION)
+            return
+        }
+        Log.d("TEST","CALLING")
+        startActivity(intent)
+    }
     private lateinit var locationManager: LocationManager
     private lateinit var latitudeTextView: TextView
     private lateinit var longitudeTextView: TextView
@@ -89,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         altitudeTextView = findViewById(R.id.altitude_textview)
         temperatureTextView = findViewById(R.id.temperature_textview)
         humidityTextView = findViewById(R.id.humidity_textview)
-
+        warningTextView = findViewById(R.id.warn_1)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         latitudeTextView = findViewById(R.id.latitude_textview)
         longitudeTextView = findViewById(R.id.longitude_textview)
@@ -107,10 +162,6 @@ class MainActivity : AppCompatActivity() {
         sensorManager.registerListener(sensorListener, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL)
         sensorManager.registerListener(sensorListener, humiditySensor, SensorManager.SENSOR_DELAY_NORMAL)
 
-        val refreshButton: Button = findViewById(R.id.refresh_button)
-        refreshButton.setOnClickListener {
-            updateLocationData()
-        }
 
         val mapButton: Button = findViewById(R.id.map_button)
         val compassButton: Button = findViewById(R.id.compass_button)
