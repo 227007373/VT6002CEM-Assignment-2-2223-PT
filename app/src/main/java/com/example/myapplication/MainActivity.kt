@@ -268,9 +268,15 @@ class MainActivity : AppCompatActivity() {
                     // Handle error
                 }
 
+            editText.visibility=View.VISIBLE
+            submitButton.visibility=View.VISIBLE
+            last_journey.visibility=View.VISIBLE
         } else {
             loginbutton.visibility = View.VISIBLE
             logoutbutton.visibility = View.GONE
+            editText.visibility=View.GONE
+            submitButton.visibility=View.GONE
+            last_journey.visibility=View.GONE
             // User is not authenticated, go back to login activity
 //            val intent = Intent(this, UserActivity::class.java)
 //            startActivity(intent)
@@ -310,6 +316,9 @@ class MainActivity : AppCompatActivity() {
         username = sharedPref.getString("username", null)
         loginbutton.visibility = View.VISIBLE
         logoutbutton.visibility = View.GONE
+        editText.visibility=View.GONE
+        submitButton.visibility=View.GONE
+        last_journey.visibility=View.GONE
         Log.d("TEST",username.toString())
 
     }
