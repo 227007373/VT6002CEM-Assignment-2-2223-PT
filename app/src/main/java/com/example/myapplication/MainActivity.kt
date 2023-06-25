@@ -15,6 +15,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -24,15 +25,23 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import org.w3c.dom.Text
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
+    private val sharedPref by lazy { getSharedPreferences("my_app", Context.MODE_PRIVATE) }
     private lateinit var editText: EditText
     private lateinit var submitButton: Button
     private lateinit var loginbutton: Button
+    private lateinit var logoutbutton: Button
+    private lateinit var journey_button: Button
     private lateinit var sensorManager: SensorManager
     private lateinit var altitudeSensor: Sensor
     private lateinit var temperatureSensor: Sensor
     private lateinit var humiditySensor: Sensor
+    private lateinit var last_journey: TextView
     private val SENSOR_TYPE_ALTITUDE = Sensor.TYPE_PRESSURE
     private val SENSOR_TYPE_TEMPERATURE = Sensor.TYPE_AMBIENT_TEMPERATURE
     private val SENSOR_TYPE_HUMIDITY = Sensor.TYPE_RELATIVE_HUMIDITY
@@ -40,6 +49,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var temperatureTextView: TextView
     private lateinit var humidityTextView: TextView
     private lateinit var warningTextView: TextView
+    private var username: Any? = null
+
     private val sensorListener = object : SensorEventListener {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
             // Not used
@@ -142,7 +153,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         FirebaseApp.initializeApp(this)
-        
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
@@ -156,10 +167,12 @@ class MainActivity : AppCompatActivity() {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         latitudeTextView = findViewById(R.id.latitude_textview)
         longitudeTextView = findViewById(R.id.longitude_textview)
+        last_journey = findViewById(R.id.last_journey)
         editText = findViewById(R.id.editText)
         submitButton = findViewById(R.id.submitButton)
 //        val toolbar = findViewById(R.id.toolbar)
         loginbutton = findViewById(R.id.toolbar_button)
+        logoutbutton = findViewById(R.id.toolbar_button_logout)
         loginbutton.setOnClickListener {
             // Start the new activity
             val intent = Intent(this, UserActivity::class.java)
@@ -177,6 +190,11 @@ class MainActivity : AppCompatActivity() {
         sensorManager.registerListener(sensorListener, altitudeSensor, SensorManager.SENSOR_DELAY_NORMAL)
         sensorManager.registerListener(sensorListener, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL)
         sensorManager.registerListener(sensorListener, humiditySensor, SensorManager.SENSOR_DELAY_NORMAL)
+        username = sharedPref.getString("username", null)
+
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("my_collection")
+
 
         submitButton.setOnClickListener {
             val name = editText.text.toString()
@@ -185,8 +203,32 @@ class MainActivity : AppCompatActivity() {
             val altitude = 0.0 // TODO: Get the device's current altitude
             val temperature = 0.0 // TODO: Get the device's current temperature
             val humidity = 0.0 // TODO: Get the device's current humidity
-            Log.d("DATA", latitudeTextView.text.toString()+", "+longitudeTextView.text.toString()+", "+altitudeTextView.text.toString()+", "+temperatureTextView.text.toString()+", "+humidityTextView.text.toString())
-            // TODO: Store the data to the device using a database or a file
+            val currentDateTime = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+            val formattedDateTime = currentDateTime.format(formatter)
+            Log.d("DATA", "You were at "+latitudeTextView.text.toString()+", "+longitudeTextView.text.toString()+" on " + formattedDateTime)
+
+            val stringToStore = "You were at "+latitudeTextView.text.toString()+", "+longitudeTextView.text.toString()+" on " + formattedDateTime + "Remarks: " + editText.text.toString()
+
+            val db = FirebaseFirestore.getInstance()
+            val collectionRef = db.collection("my_collection")
+            collectionRef.document(username as String).set(mapOf("name" to stringToStore))
+
+            collectionRef.document(username as String).get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val name = documentSnapshot.getString("name")
+                        if (name != null) {
+                            last_journey.text  = name
+                            // Do something with the name
+                        }
+                    } else {
+                        // Handle document not found
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // Handle error
+                }
         }
         val mapButton: Button = findViewById(R.id.map_button)
         val compassButton: Button = findViewById(R.id.compass_button)
@@ -198,10 +240,47 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("longitude", longitude)
             startActivity(intent)
         }
+
         compassButton.setOnClickListener {
             val intent = Intent(this, CompassActivity::class.java)
             startActivity(intent)
         }
+
+
+        if (username != null) {
+            Toast.makeText(this, "Welcome, $username!", Toast.LENGTH_SHORT).show()
+            loginbutton.visibility = View.GONE
+            logoutbutton.visibility = View.VISIBLE
+
+            collectionRef.document(username as String).get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val name = documentSnapshot.getString("name")
+                        if (name != null) {
+                            last_journey.text  = name
+                            // Do something with the name
+                        }
+                    } else {
+                        // Handle document not found
+                    }
+                }
+                .addOnFailureListener { e ->
+                    // Handle error
+                }
+
+        } else {
+            loginbutton.visibility = View.VISIBLE
+            logoutbutton.visibility = View.GONE
+            // User is not authenticated, go back to login activity
+//            val intent = Intent(this, UserActivity::class.java)
+//            startActivity(intent)
+//            finish()
+        }
+
+        logoutbutton.setOnClickListener {
+            logoutUser()
+        }
+
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -220,7 +299,20 @@ class MainActivity : AppCompatActivity() {
         // Remove the location listener to avoid memory leaks
         locationManager.removeUpdates(locationListener)
     }
+    private fun logoutUser() {
+        // Clear user data from SharedPreferences
+        with(sharedPref.edit()) {
+            remove("username")
+            apply()
+        }
 
+        // Set username to null and go back to login activity
+        username = sharedPref.getString("username", null)
+        loginbutton.visibility = View.VISIBLE
+        logoutbutton.visibility = View.GONE
+        Log.d("TEST",username.toString())
+
+    }
     private fun updateLocationData() {
         // Check if the user has granted permission to access fine location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
