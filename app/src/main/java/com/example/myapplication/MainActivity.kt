@@ -17,14 +17,17 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var editText: EditText
     private lateinit var submitButton: Button
+    private lateinit var loginbutton: Button
     private lateinit var sensorManager: SensorManager
     private lateinit var altitudeSensor: Sensor
     private lateinit var temperatureSensor: Sensor
@@ -152,7 +155,13 @@ class MainActivity : AppCompatActivity() {
         longitudeTextView = findViewById(R.id.longitude_textview)
         editText = findViewById(R.id.editText)
         submitButton = findViewById(R.id.submitButton)
-
+//        val toolbar = findViewById(R.id.toolbar)
+        loginbutton = findViewById(R.id.toolbar_button)
+        loginbutton.setOnClickListener {
+            // Start the new activity
+            val intent = Intent(this, UserActivity::class.java)
+            startActivity(intent)
+        }
         // Check if the user has granted permission to access fine location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Request location updates from the GPS provider
